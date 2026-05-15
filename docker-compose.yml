@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    ports:
+      - "5001:5001"
+    environment:
+      - FLASK_PORT=5001
+      - FLASK_DEBUG=False
+      - SECRET_KEY=${SECRET_KEY:-change-this}
+      - DATABASE_PATH=/data/escrow.db
+      - EVAL_PASS_THRESHOLD=0.6
+    volumes:
+      - escrow-data:/data
+    restart: unless-stopped
+
+volumes:
+  escrow-data:
