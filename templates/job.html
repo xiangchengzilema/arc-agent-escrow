@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job #{{ job.id }} - Arc Agent Escrow</title>
+    <style>
+        :root { --primary: #667eea; --bg: #f5f7fa; --card: #fff; --text: #2d3748; --muted: #718096; --border: #e2e8f0; --success: #48bb78; --warn: #ecc94b; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); }
+        .nav { background: var(--card); box-shadow: 0 2px 4px rgba(0,0,0,0.08); padding: 0 24px; height: 56px; display: flex; align-items: center; }
+        .nav a { text-decoration: none; color: var(--primary); font-weight: 600; }
+        .container { max-width: 700px; margin: 24px auto; padding: 0 24px; }
+        .card { background: var(--card); border-radius: 12px; padding: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.06); margin-bottom: 16px; }
+        .badge { display:inline-block; padding: 6px 14px; border-radius: 12px; font-size: 14px; font-weight: 600; }
+        .badge-settled { background: #c6f6d5; color: #276749; }
+        .badge-open, .badge-funded { background: #ebf8ff; color: #2b6cb0; }
+        .badge-assigned { background: #e9d8fd; color: #6b46c1; }
+        .badge-submitted { background: #fefcbf; color: #975a16; }
+        .badge-rejected { background: #fed7d7; color: #9b2c2c; }
+        .badge-cancelled { background: #e2e8f0; color: #4a5568; }
+        .row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+        .row:last-child { border-bottom: none; }
+        .label { color: var(--muted); font-size: 14px; }
+        .value { font-weight: 500; font-size: 14px; text-align: right; max-width: 60%; word-break: break-all; }
+        .value.amount { font-size: 22px; color: var(--primary); }
+        .addr { font-family: monospace; font-size: 13px; }
+        h1 { font-size: 22px; margin-bottom: 4px; }
+        .code { margin-top: 4px; }
+        .empty { text-align: center; color: var(--muted); padding: 20px; }
+    </style>
+</head>
+<body>
+    <div class="nav"><a href="/">← Dashboard</a></div>
+    <div class="container">
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <div>
+                    <h1>{{ job.title }}</h1>
+                    <span class="addr">Job #{{ job.id }} · {{ job.job_code }}</span>
+                </div>
+                <span class="badge badge-{{ job.status }}">{{ job.status }}</span>
+            </div>
+
+            <div class="row"><span class="label">Reward</span><span class="value amount">{{ job.reward_usdc }} USDC</span></div>
+            <div class="row"><span class="label">Escrowed</span><span class="value">{{ job.escrow_amount }} USDC</span></div>
+            <div class="row"><span class="label">Category</span><span class="value">{{ job.category }}</span></div>
+            <div class="row"><span class="label">Evaluator</span><span class="value">{{ job.evaluator_type }}</span></div>
+            <div class="row"><span class="label">Employer</span><span class="value addr">{{ job.employer_address }}</span></div>
+            {% if job.worker_address %}
+            <div class="row"><span class="label">Worker</span><span class="value addr">{{ job.worker_address }}</span></div>
+            {% endif %}
+            <div class="row"><span class="label">Created</span><span class="value">{{ job.created_at }}</span></div>
+            {% if job.deadline %}
+            <div class="row"><span class="label">Deadline</span><span class="value">{{ job.deadline }}</span></div>
+            {% endif %}
+        </div>
+
+        {% if job.description %}
+        <div class="card">
+            <h3 style="margin-bottom:8px;">Description</h3>
+            <p style="color:var(--muted); line-height:1.6;">{{ job.description }}</p>
+        </div>
+        {% endif %}
+
+        {% if job.result_data %}
+        <div class="card">
+            <h3 style="margin-bottom:8px;">Submission</h3>
+            <pre style="background:#edf2f7; padding:12px; border-radius:8px; white-space:pre-wrap; font-size:13px;">{{ job.result_data }}</pre>
+        </div>
+        {% endif %}
+
+        {% if job.evaluation_score is not none %}
+        <div class="card">
+            <h3 style="margin-bottom:8px;">Evaluation</h3>
+            <div class="row"><span class="label">Score</span><span class="value">{{ "%.1f%%" | format(job.evaluation_score * 100) }}</span></div>
+            <div class="row"><span class="label">Notes</span><span class="value">{{ job.evaluation_notes or "-" }}</span></div>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

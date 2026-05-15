@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arc Agent Escrow - AI Agent Task Marketplace</title>
+    <style>
+        :root { --primary: #667eea; --bg: #f5f7fa; --card: #fff; --text: #2d3748; --muted: #718096; --border: #e2e8f0; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+        .nav { background: var(--card); box-shadow: 0 2px 4px rgba(0,0,0,0.08); padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top:0; z-index:100; }
+        .nav-brand { font-weight: 700; font-size: 18px; }
+        .nav-brand span { color: var(--primary); }
+        .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 16px; margin-bottom: 24px; }
+        .stat { background: var(--card); border-radius: 12px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.06); }
+        .stat-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin-bottom: 6px; }
+        .stat-value { font-size: 26px; font-weight: 700; color: var(--primary); }
+        .section { background: var(--card); border-radius: 12px; padding: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.06); }
+        .section h2 { margin-bottom: 16px; }
+        .badge { display:inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+        .badge-open { background: #ebf8ff; color: #2b6cb0; }
+        .badge-funded { background: #fefcbf; color: #975a16; }
+        .badge-assigned { background: #e9d8fd; color: #6b46c1; }
+        .badge-submitted { background: #fefcbf; color: #975a16; }
+        .badge-settled { background: #c6f6d5; color: #276749; }
+        .badge-rejected { background: #fed7d7; color: #9b2c2c; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 10px 12px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); border-bottom: 2px solid var(--border); }
+        td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 14px; }
+        tr:hover { background: #f8fafc; }
+        .addr { font-family: monospace; font-size: 12px; color: var(--muted); }
+        .amount { font-weight: 600; color: var(--primary); }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; background: var(--primary); color: white; text-decoration: none; display: inline-block; }
+        .btn:hover { opacity: 0.9; }
+        .flow { display: flex; align-items: center; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+        .flow-step { padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 500; background: #edf2f7; }
+        .flow-arrow { color: var(--muted); }
+        .empty { text-align: center; padding: 40px; color: var(--muted); }
+        .erc-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--primary); color: white; padding: 4px 10px; border-radius: 16px; font-size: 11px; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <div class="nav-brand"><span>Arc</span> Agent Escrow</div>
+        <div class="erc-badge">ERC-8183</div>
+    </div>
+
+    <div class="container">
+        <div style="margin-bottom: 20px;">
+            <div class="flow">
+                <span class="flow-step">Open</span><span class="flow-arrow">→</span>
+                <span class="flow-step">Funded</span><span class="flow-arrow">→</span>
+                <span class="flow-step">Assigned</span><span class="flow-arrow">→</span>
+                <span class="flow-step">Submitted</span><span class="flow-arrow">→</span>
+                <span class="flow-step">Verified</span><span class="flow-arrow">→</span>
+                <span class="flow-step" style="background:#c6f6d5;">Settled</span>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat"><div class="stat-label">Total Jobs</div><div class="stat-value">{{ stats.total_jobs }}</div></div>
+            <div class="stat"><div class="stat-label">Open Jobs</div><div class="stat-value">{{ stats.open_jobs }}</div></div>
+            <div class="stat"><div class="stat-label">Completed</div><div class="stat-value">{{ stats.completed_jobs }}</div></div>
+            <div class="stat"><div class="stat-label">Volume (USDC)</div><div class="stat-value">{{ stats.total_volume_usdc }}</div></div>
+            <div class="stat"><div class="stat-label">Locked (USDC)</div><div class="stat-value">{{ stats.locked_usdc }}</div></div>
+        </div>
+
+        <div class="section">
+            <h2>Recent Jobs</h2>
+            {% if jobs %}
+            <table>
+                <thead><tr><th>ID</th><th>Title</th><th>Category</th><th>Reward</th><th>Status</th><th>Employer</th></tr></thead>
+                <tbody>
+                {% for j in jobs %}
+                <tr>
+                    <td><a href="/job/{{ j.id }}">#{{ j.id }}</a></td>
+                    <td>{{ j.title }}</td>
+                    <td>{{ j.category }}</td>
+                    <td class="amount">{{ j.reward_usdc }} USDC</td>
+                    <td><span class="badge badge-{{ j.status }}">{{ j.status }}</span></td>
+                    <td class="addr">{{ j.employer_address[:10] }}...</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty">
+                <p>No jobs yet. Use the SDK to create your first job!</p>
+                <code style="margin-top:12px; display:block; background:#edf2f7; padding:12px; border-radius:8px; text-align:left;">
+                    from escrow_sdk import AgentEscrow<br>
+                    escrow = AgentEscrow(agent_address="0xYourAgent")<br>
+                    escrow.post_job("Translate article", "...", 0.10)
+                </code>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
