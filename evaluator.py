@@ -118,10 +118,11 @@ class AIEvaluator:
         if any(c in submission for c in ['\n', '-', '*', '#', '1.', '•']):
             score += 0.2
 
-        # 有JSON加分
+        # 有JSON加分（仅当解析结果是 dict 或 list — 单纯的 "42"/"true" 不算结构化）
         try:
-            json.loads(submission)
-            score += 0.3
+            parsed = json.loads(submission)
+            if isinstance(parsed, (dict, list)):
+                score += 0.3
         except (json.JSONDecodeError, ValueError):
             pass
 

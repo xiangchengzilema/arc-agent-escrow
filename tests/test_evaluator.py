@@ -96,3 +96,15 @@ class TestNotes:
         result = evaluator.evaluate(job, "Some reasonable submission content that is long enough")
         assert result["notes"]
         assert "PASS" in result["notes"] or "FAIL" in result["notes"]
+
+
+class TestFormatScalar:
+    def test_scalar_json_does_not_inflate_format_score(self, evaluator):
+        """"42" / "true" parse as JSON but aren't structured — must not earn the JSON bonus."""
+        for scalar in ('42', '"hi"', 'true', 'null'):
+            assert evaluator._check_format(scalar) <= 0.6, (
+                f"scalar {scalar!r} should not get +0.3 JSON bonus"
+            )
+
+    def test_object_json_gets_format_bonus(self, evaluator):
+        assert evaluator._check_format('{"key": "value"}') >= 0.8
