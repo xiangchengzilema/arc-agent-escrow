@@ -41,8 +41,9 @@ TERMINAL_STATES = {STATE_SETTLED, STATE_CANCELLED, STATE_EXPIRED}
 class EscrowEngine:
     """ERC-8183托管引擎"""
 
-    def __init__(self, db_path: str = "escrow.db"):
+    def __init__(self, db_path: str = "escrow.db", pass_threshold: float = 0.6):
         self.db_path = db_path
+        self.pass_threshold = pass_threshold
         self._init_tables()
 
     def _init_tables(self):
@@ -214,7 +215,7 @@ class EscrowEngine:
         if job["status"] not in (STATE_SUBMITTED, STATE_DISPUTED, STATE_RESOLVED):
             return {"success": False, "error": f"Cannot verify job in {job['status']} state"}
 
-        if score >= 0.6:  # 60% pass threshold
+        if score >= self.pass_threshold:
             self._transition(job_id, STATE_VERIFIED)
             conn = sqlite3.connect(self.db_path)
             c = conn.cursor()

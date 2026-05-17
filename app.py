@@ -9,8 +9,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-engine = EscrowEngine(os.getenv("DATABASE_PATH", "escrow.db"))
-evaluator = AIEvaluator(pass_threshold=float(os.getenv("EVAL_PASS_THRESHOLD", "0.6")))
+_threshold = float(os.getenv("EVAL_PASS_THRESHOLD", "0.6"))
+engine = EscrowEngine(os.getenv("DATABASE_PATH", "escrow.db"), pass_threshold=_threshold)
+evaluator = AIEvaluator(pass_threshold=_threshold)
 
 
 # ==================== Pages ====================

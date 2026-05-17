@@ -64,7 +64,7 @@ class AIEvaluator:
 
         passed = final_score >= self.pass_threshold
 
-        notes = self._generate_notes(scores, passed, category)
+        notes = self._generate_notes(scores, passed, category, final_score)
 
         return {
             "score": round(final_score, 3),
@@ -239,13 +239,14 @@ class AIEvaluator:
         specific = category_weight.get(category, {"general_quality": 0.4})
         return {**base, **specific}
 
-    def _generate_notes(self, scores: Dict, passed: bool, category: str) -> str:
+    def _generate_notes(self, scores: Dict, passed: bool, category: str,
+                        final_score: float) -> str:
         """生成评估备注"""
         status = "PASS" if passed else "FAIL"
         best = max(scores, key=scores.get)
         worst = min(scores, key=scores.get)
 
-        return (f"[{status}] Score: {max(scores.values()):.2f}. "
+        return (f"[{status}] Score: {final_score:.2f}. "
                 f"Strongest: {best} ({scores[best]:.2f}). "
                 f"Needs improvement: {worst} ({scores[worst]:.2f}). "
                 f"Category: {category}.")
