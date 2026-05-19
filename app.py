@@ -70,12 +70,11 @@ def api_get_job(job_id):
 
 @app.route("/api/job/<int:job_id>/fund", methods=["POST"])
 def api_fund_job(job_id):
-    data = request.get_json()
-    amount = data.get("amount") if data else None
+    data = request.get_json(silent=True) or {}
     job = engine.get_job(job_id)
     if not job:
         return jsonify({"success": False, "error": "Job not found"}), 404
-    amount = amount or job["reward_usdc"]
+    amount = data.get("amount") or job["reward_usdc"]
     result = engine.fund_job(job_id, float(amount), data.get("tx_hash", ""))
     return jsonify(result)
 
