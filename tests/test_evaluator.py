@@ -20,6 +20,24 @@ class TestBasicEvaluation:
         assert result["passed"] is False
         assert result["score"] == 0.0
 
+    def test_none_submission(self, evaluator):
+        """None submission should be treated as empty, not crash."""
+        job = {"title": "Test", "description": "Do something", "category": "general"}
+        result = evaluator.evaluate(job, None)
+        assert result["passed"] is False
+        assert result["score"] == 0.0
+        assert result["notes"] == "Empty submission"
+
+    def test_non_string_submission_coerced(self, evaluator):
+        """Non-string submissions (int/list/dict) should coerce to string,
+        not raise AttributeError on .strip()."""
+        job = {"title": "Test", "description": "Do something", "category": "general"}
+        for value in (123, ["hello", "world"], {"answer": 42}, True):
+            result = evaluator.evaluate(job, value)
+            # Either passes scoring or rejects gracefully — must not crash.
+            assert "score" in result
+            assert "passed" in result
+
     def test_short_submission(self, evaluator):
         job = {"title": "Test", "description": "Do something", "category": "general"}
         result = evaluator.evaluate(job, "ok")

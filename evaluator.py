@@ -25,6 +25,18 @@ class AIEvaluator:
         Returns:
             {"score": 0.85, "passed": True, "notes": "...", "details": {...}}
         """
+        # Defensive: callers occasionally pass already-deserialised JSON values
+        # (int / list / dict). Coerce to str instead of crashing on .strip().
+        if submission is None:
+            submission = ""
+        elif not isinstance(submission, str):
+            try:
+                if isinstance(submission, (int, float, bool)):
+                    submission = str(submission)
+                else:
+                    submission = json.dumps(submission, ensure_ascii=False)
+            except (TypeError, ValueError):
+                submission = str(submission)
         if not submission or not submission.strip():
             return {
                 "score": 0.0,
