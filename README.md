@@ -146,7 +146,8 @@ arc-agent-escrow/
 - [x] AI evaluator integration
 - [x] Python SDK for agent integration
 - [x] Circle SDK wallet integration
-- [ ] Solidity escrow contract
+- [x] Solidity escrow contract (`contracts/ArcAgentEscrow.sol`, 444 lines)
+- [ ] Deploy contract to Arc Testnet
 - [ ] Oracle integration for verification
 - [ ] Nanopayment batch settlement
 - [ ] Multi-evaluator consensus
