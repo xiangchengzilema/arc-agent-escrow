@@ -7,7 +7,6 @@ import sqlite3
 import hashlib
 import time
 from typing import Dict, Optional, List
-from datetime import datetime
 
 
 # ERC-8183 Job States
@@ -321,9 +320,11 @@ class EscrowEngine:
         return dict(zip(cols, row))
 
     def get_job(self, job_id: int) -> Optional[Dict]:
+        """Return one job's full record by numeric id, or None if missing."""
         return self._get_job(job_id)
 
     def get_job_by_code(self, job_code: str) -> Optional[Dict]:
+        """Return one job's full record by its short job_code, or None if missing."""
         conn = sqlite3.connect(self.db_path)
         c = conn.cursor()
         c.execute("SELECT * FROM jobs WHERE job_code = ?", (job_code,))
@@ -339,6 +340,7 @@ class EscrowEngine:
         return dict(zip(cols, row))
 
     def list_jobs(self, status: str = None, limit: int = 20) -> List[Dict]:
+        """List jobs newest-first, optionally filtered by status (open/funded/assigned/...)."""
         conn = sqlite3.connect(self.db_path)
         c = conn.cursor()
         if status:
@@ -356,6 +358,7 @@ class EscrowEngine:
         return [dict(zip(cols, r)) for r in rows]
 
     def get_agent_jobs(self, address: str) -> List[Dict]:
+        """Return up to 50 most recent jobs where the given address is employer or worker."""
         conn = sqlite3.connect(self.db_path)
         c = conn.cursor()
         c.execute('''
@@ -373,6 +376,7 @@ class EscrowEngine:
         return [dict(zip(cols, r)) for r in rows]
 
     def get_stats(self) -> Dict:
+        """Return aggregate counts (total jobs, active, completed, total volume USDC)."""
         conn = sqlite3.connect(self.db_path)
         c = conn.cursor()
         c.execute("SELECT COUNT(*) FROM jobs")
@@ -383,7 +387,10 @@ class EscrowEngine:
         settled = c.fetchone()[0]
         c.execute("SELECT COALESCE(SUM(escrow_amount), 0) FROM jobs WHERE status = 'settled'")
         total_volume = c.fetchone()[0]
-        c.execute("SELECT COALESCE(SUM(escrow_amount), 0) FROM jobs WHERE status NOT IN ('settled','cancelled','expired')")
+        c.execute(
+            "SELECT COALESCE(SUM(escrow_amount), 0) FROM jobs "
+            "WHERE status NOT IN ('settled','cancelled','expired')"
+        )
         locked = c.fetchone()[0]
         conn.close()
         return {
